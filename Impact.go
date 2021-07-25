@@ -2,6 +2,7 @@ package Impact
 
 import (
 	"bufio"
+	"fmt"
 	"image"
 	"strings"
 
@@ -34,7 +35,15 @@ func Impact(imagePath string, fontSize float64, toptext, bottomtext string) stri
 	}
 	defer file.Close()
 
-	img_bg, err := jpeg.Decode(file)
+	var img_bg image.Image
+
+	switch imagePath[len(imagePath)-4:] {
+	case ".png":
+		img_bg, err = png.Decode(file)
+	case ".jpg":
+		img_bg, err = jpeg.Decode(file)
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,10 +113,6 @@ func Impact(imagePath string, fontSize float64, toptext, bottomtext string) stri
 		}
 	}
 
-	for i, j := 0, len(bottomlines)-1; i < j; i, j = i+1, j-1 {
-		bottomlines[i], bottomlines[j] = bottomlines[j], bottomlines[i]
-	}
-
 	for i, v := range bottomlines {
 		textWidth := font.MeasureString(face, v).Round()
 		c.SetSrc(image.Black)
@@ -116,19 +121,23 @@ func Impact(imagePath string, fontSize float64, toptext, bottomtext string) stri
 				if (dx*dx+dy*dy >= n*n) || ((dx == 0) && (dy == 0)) {
 					continue
 				}
-				c.DrawString(v, freetype.Pt(img_bg.Bounds().Dx()/2-textWidth/2+(dx*2), img_bg.Bounds().Dy()-(int(fontSize)*(i)+(dy*2)+py)))
+				c.DrawString(v, freetype.Pt(img_bg.Bounds().Dx()/2-textWidth/2+(dx*2), img_bg.Bounds().Dy()-(int(fontSize)*(len(bottomlines)-(i+1))+(dy*2)+ +py*2)))
 			}
 		}
 		c.SetSrc(image.White)
-		c.DrawString(v, freetype.Pt(img_bg.Bounds().Dx()/2-textWidth/2, img_bg.Bounds().Dy()-(int(fontSize)*(i)+py)))
+		c.DrawString(v, freetype.Pt(img_bg.Bounds().Dx()/2-textWidth/2, img_bg.Bounds().Dy()-(int(fontSize)*(len(bottomlines)-(i+1))+py*2)))
 	}
 
-	outFile, err := os.Create("impact_" + imagePath)
+	a := strings.Split(imagePath, "/")
+
+	outFile, err := os.Create(a[0] + "/" + "impact_" + a[1])
 	if err != nil {
 		log.Println(err)
-		os.Exit(1)
+
 	}
 	defer outFile.Close()
+
+	fmt.Println(1)
 
 	b := bufio.NewWriter(outFile)
 
@@ -138,15 +147,17 @@ func Impact(imagePath string, fontSize float64, toptext, bottomtext string) stri
 	case ".jpg":
 		err = jpeg.Encode(b, rgba, &jpeg.Options{Quality: 100})
 	}
-
+	fmt.Println(2)
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println(2)
 
 	err = b.Flush()
 	if err != nil {
 		panic(err)
 	}
 
-	return "impact_" + imagePath
+	return a[0] + "/" + "impact_" + a[1]
 }
