@@ -7,6 +7,7 @@ import (
 
 	"image/draw"
 	"image/jpeg"
+	"image/png"
 	"io/ioutil"
 	"log"
 	"os"
@@ -131,7 +132,13 @@ func Impact(imagePath string, fontSize float64, toptext, bottomtext string) stri
 
 	b := bufio.NewWriter(outFile)
 
-	err = jpeg.Encode(b, rgba, &jpeg.Options{Quality: 100})
+	switch imagePath[len(imagePath)-4:] {
+	case ".png":
+		err = png.Encode(b, rgba)
+	case ".jpg":
+		err = jpeg.Encode(b, rgba, &jpeg.Options{Quality: 100})
+	}
+
 	if err != nil {
 		panic(err)
 	}
