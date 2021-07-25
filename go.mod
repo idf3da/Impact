@@ -1,4 +1,4 @@
-module Impact
+module github.com/idf3da/Impact
 
 go 1.16
 
