@@ -20,7 +20,7 @@ import (
 
 func Impact(imagePath string, fontSize float64, toptext, bottomtext string) string {
 
-	fontBytes, err := ioutil.ReadFile("impact.ttf")
+	fontBytes, err := ioutil.ReadFile("resources/impact.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -161,3 +161,4 @@ func Impact(imagePath string, fontSize float64, toptext, bottomtext string) stri
 
 	return a[0] + "/" + "impact_" + a[1]
 }
+
